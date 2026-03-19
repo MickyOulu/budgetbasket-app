@@ -1,0 +1,12 @@
+BudgetBasket Project Notes
+
+Idea:
+An Android app to manage shared grocery shopping and expenses.
+
+Planned features:
+- Grocery list
+- Expense tracking
+- Monthly budget
+
+Status:
+Planning phase
