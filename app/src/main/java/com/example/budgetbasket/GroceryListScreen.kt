@@ -1,0 +1,209 @@
+package com.example.budgetbasket
+
+import android.window.BackEvent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+data class GroceryItem(
+    val itemName: String,
+    val cost: String,
+    val addedBy: String,
+    val date: String,
+    val week: String
+)
+
+@Composable
+fun GroceryListScreen(
+    currentUserName: String,
+    onBackClick: () -> Unit,
+) {
+    var itemText by remember { mutableStateOf("") }
+    var costText by remember { mutableStateOf("") }
+    var dateText by remember { mutableStateOf("") }
+    var weekText by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
+    val groceryItems = remember { mutableStateListOf<GroceryItem>() }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(24.dp)
+    ) {
+
+        Button(
+            onClick = onBackClick,
+            modifier = Modifier.fillMaxWidth()
+       ) {
+            Text("Back to Dashboard")
+        }
+        Text(
+            text = "Grocery List",
+            style = MaterialTheme.typography.headlineMedium,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Logged in as: $currentUserName",
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = itemText,
+            onValueChange = {
+                itemText = it
+                message = ""
+            },
+            label = { Text("Item name") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = costText,
+            onValueChange = {
+                costText = it
+                message = ""
+            },
+            label = { Text("Cost (€)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = currentUserName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Added by") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = dateText,
+            onValueChange = {
+                dateText = it
+                message = ""
+            },
+            label = { Text("Date (e.g. DD/MM/YYYY)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = weekText,
+            onValueChange = {
+                weekText = it
+                message = ""
+            },
+            label = { Text("Week (e.g. Week 4)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                when {
+                    itemText.isBlank() -> message = "Please enter item name"
+                    costText.isBlank() -> message = "Please enter cost"
+                    dateText.isBlank() -> message = "Please enter date"
+                    weekText.isBlank() -> message = "Please enter week"
+                    else -> {
+                        groceryItems.add(
+                            GroceryItem(
+                                itemName = itemText,
+                                cost = costText,
+                                addedBy = currentUserName,
+                                date = dateText,
+                                week = weekText
+                            )
+                        )
+
+                        itemText = ""
+                        costText = ""
+                        dateText = ""
+                        weekText = ""
+                        message = "Item added successfully"
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Item")
+        }
+
+        if (message.isNotEmpty()) {
+            Text(
+                text = message,
+                modifier = Modifier.padding(top = 12.dp),
+                color = Color.Black
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            itemsIndexed(groceryItems) { index, item ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = "${index + 1}. ${item.itemName}\n" +
+                                    "Cost: €${item.cost}\n" +
+                                    "Added by: ${item.addedBy}\n" +
+                                    "Date: ${item.date}\n" +
+                                    "Week: ${item.week}",
+                            modifier = Modifier.weight(1f),
+                            color = Color.Black
+                        )
+
+                        TextButton(
+                            onClick = {
+                                groceryItems.removeAt(index)
+                            }
+                        ) {
+                            Text("Remove")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

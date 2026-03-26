@@ -1,12 +1,7 @@
 package com.example.budgetbasket
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -16,23 +11,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.budgetbasket.ui.theme.BudgetBasketTheme
 
 @Composable
 fun SignUpScreen(
-    modifier: Modifier = Modifier,
-    onBackToLoginClick: () -> Unit
+    onBackToLoginClick: () -> Unit,
+    onSignUpSuccess: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -41,22 +31,25 @@ fun SignUpScreen(
     var message by remember { mutableStateOf("") }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Create Account",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Join BudgetBasket to manage shared grocery expenses",
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -71,10 +64,10 @@ fun SignUpScreen(
                 Icon(Icons.Default.Person, contentDescription = "Name Icon")
             },
             label = { Text("Full Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = email,
@@ -86,10 +79,10 @@ fun SignUpScreen(
                 Icon(Icons.Default.Email, contentDescription = "Email Icon")
             },
             label = { Text("Email") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = password,
@@ -102,10 +95,10 @@ fun SignUpScreen(
             },
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = confirmPassword,
@@ -118,20 +111,20 @@ fun SignUpScreen(
             },
             label = { Text("Confirm Password") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp)
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                message = when {
-                    name.isBlank() -> "Please enter your name"
-                    email.isBlank() -> "Please enter your email"
-                    password.isBlank() -> "Please enter your password"
-                    confirmPassword.isBlank() -> "Please confirm your password"
-                    password != confirmPassword -> "Passwords do not match"
-                    else -> "Sign up details look okay"
+                when {
+                    name.isBlank() -> message = "Please enter your name"
+                    email.isBlank() -> message = "Please enter your email"
+                    password.isBlank() -> message = "Please enter your password"
+                    confirmPassword.isBlank() -> message = "Please confirm your password"
+                    password != confirmPassword -> message = "Passwords do not match"
+                    else -> onSignUpSuccess(name)
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -143,23 +136,14 @@ fun SignUpScreen(
             Text(
                 text = message,
                 modifier = Modifier.padding(top = 12.dp),
-                textAlign = TextAlign.Center
+                color = Color.Black
             )
         }
 
-        Button(
-            onClick = onBackToLoginClick,
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onBackToLoginClick) {
             Text("Back to Login")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignUpScreenPreview() {
-    BudgetBasketTheme {
-        SignUpScreen(onBackToLoginClick = {})
     }
 }

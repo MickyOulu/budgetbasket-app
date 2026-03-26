@@ -3,40 +3,55 @@ package com.example.budgetbasket
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.example.budgetbasket.ui.theme.BudgetBasketTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
             BudgetBasketTheme {
                 var currentScreen by remember { mutableStateOf("welcome") }
+                var currentUserName by remember { mutableStateOf("") }
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color.White
+                ) {
                     when (currentScreen) {
                         "welcome" -> WelcomeScreen(
-                            modifier = Modifier.padding(innerPadding),
                             onGetStartedClick = { currentScreen = "login" }
                         )
 
                         "login" -> LoginScreen(
-                            modifier = Modifier.padding(innerPadding),
                             onSignUpClick = { currentScreen = "signup" }
                         )
 
                         "signup" -> SignUpScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onBackToLoginClick = { currentScreen = "login" }
+                            onBackToLoginClick = { currentScreen = "login" },
+                            onSignUpSuccess = { enteredName ->
+                                currentUserName = enteredName
+                                currentScreen = "dashboard"
+                            }
+                        )
+
+                        "dashboard" -> DashboardScreen(
+                            userName = currentUserName,
+                            onOpenGroceryClick = { currentScreen = "grocery" }
+                        )
+
+                        "grocery" -> GroceryListScreen(
+                            currentUserName = currentUserName,
+                            onBackClick = { currentScreen = "dashboard"}
+                        )
+
+                        else -> WelcomeScreen(
+                            onGetStartedClick = { currentScreen = "login" }
                         )
                     }
                 }
