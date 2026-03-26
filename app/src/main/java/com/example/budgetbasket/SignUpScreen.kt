@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,12 +30,14 @@ import androidx.compose.ui.unit.dp
 import com.example.budgetbasket.ui.theme.BudgetBasketTheme
 
 @Composable
-fun LoginScreen(
+fun SignUpScreen(
     modifier: Modifier = Modifier,
-    onSignUpClick: () -> Unit
+    onBackToLoginClick: () -> Unit
 ) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
     Column(
@@ -45,18 +48,33 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Login",
+            text = "Create Account",
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Welcome back to BudgetBasket",
+            text = "Join BudgetBasket to manage shared grocery expenses",
             textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = {
+                name = it
+                message = ""
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Person, contentDescription = "Name Icon")
+            },
+            label = { Text("Full Name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        )
 
         OutlinedTextField(
             value = email,
@@ -86,21 +104,39 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        )
+
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = {
+                confirmPassword = it
+                message = ""
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon")
+            },
+            label = { Text("Confirm Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(bottom = 24.dp)
         )
 
         Button(
             onClick = {
                 message = when {
-                    email.isBlank() && password.isBlank() -> "Please enter email and password"
+                    name.isBlank() -> "Please enter your name"
                     email.isBlank() -> "Please enter your email"
                     password.isBlank() -> "Please enter your password"
-                    else -> "Login details look okay"
+                    confirmPassword.isBlank() -> "Please confirm your password"
+                    password != confirmPassword -> "Passwords do not match"
+                    else -> "Sign up details look okay"
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Login")
+            Text("Sign Up")
         }
 
         if (message.isNotEmpty()) {
@@ -112,18 +148,18 @@ fun LoginScreen(
         }
 
         Button(
-            onClick = onSignUpClick,
+            onClick = onBackToLoginClick,
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Go to Sign Up")
+            Text("Back to Login")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun SignUpScreenPreview() {
     BudgetBasketTheme {
-        LoginScreen(onSignUpClick = {})
+        SignUpScreen(onBackToLoginClick = {})
     }
 }
