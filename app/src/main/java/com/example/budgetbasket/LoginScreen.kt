@@ -17,14 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(
-    onSignUpClick: () -> Unit
+    onSignUpClick: () -> Unit,
+    onLoginSuccess: (String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+
+    val auth = FirebaseAuth.getInstance()
 
     Column(
         modifier = Modifier
@@ -83,11 +87,27 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                message = when {
-                    email.isBlank() && password.isBlank() -> "Please enter email and password"
-                    email.isBlank() -> "Please enter your email"
-                    password.isBlank() -> "Please enter your password"
-                    else -> "Login details look okay"
+                when {
+                    email.isBlank() && password.isBlank() -> {
+                        message = "Please enter email and password"
+                    }
+                    email.isBlank() -> {
+                        message = "Please enter your email"
+                    }
+                    password.isBlank() -> {
+                        message = "Please enter your password"
+                    }
+                    else -> {
+                        auth.signInWithEmailAndPassword(email.trim(), password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val userEmail = auth.currentUser?.email ?: "User"
+                                    onLoginSuccess(userEmail)
+                                } else {
+                                    message = task.exception?.localizedMessage ?: "Login failed"
+                                }
+                            }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -99,7 +119,7 @@ fun LoginScreen(
             Text(
                 text = message,
                 modifier = Modifier.padding(top = 12.dp),
-                color = Color.Black
+                color = Color.Red
             )
         }
 

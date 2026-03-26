@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.budgetbasket.ui.theme.BudgetBasketTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,8 +17,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BudgetBasketTheme {
-                var currentScreen by remember { mutableStateOf("welcome") }
-                var currentUserName by remember { mutableStateOf("") }
+                val auth = FirebaseAuth.getInstance()
+                val firebaseUser = auth.currentUser
+
+                var currentScreen by remember {
+                    mutableStateOf(
+                        if (firebaseUser != null) "dashboard" else "welcome"
+                    )
+                }
+
+                var currentUserName by remember {
+                    mutableStateOf(firebaseUser?.email ?: "")
+                }
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -29,7 +40,11 @@ class MainActivity : ComponentActivity() {
                         )
 
                         "login" -> LoginScreen(
-                            onSignUpClick = { currentScreen = "signup" }
+                            onSignUpClick = { currentScreen = "signup" },
+                            onLoginSuccess = { enteredName ->
+                                currentUserName = enteredName
+                                currentScreen = "dashboard"
+                            }
                         )
 
                         "signup" -> SignUpScreen(
@@ -42,12 +57,17 @@ class MainActivity : ComponentActivity() {
 
                         "dashboard" -> DashboardScreen(
                             userName = currentUserName,
-                            onOpenGroceryClick = { currentScreen = "grocery" }
+                            onOpenGroceryClick = { currentScreen = "grocery" },
+                            onLogoutClick = {
+                                auth.signOut()
+                                currentUserName = ""
+                                currentScreen = "login"
+                            }
                         )
 
                         "grocery" -> GroceryListScreen(
                             currentUserName = currentUserName,
-                            onBackClick = { currentScreen = "dashboard"}
+                            onBackClick = { currentScreen = "dashboard" }
                         )
 
                         else -> WelcomeScreen(

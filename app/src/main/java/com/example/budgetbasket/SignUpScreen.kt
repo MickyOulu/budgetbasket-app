@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SignUpScreen(
@@ -30,6 +30,8 @@ fun SignUpScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
+    val auth = FirebaseAuth.getInstance()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,16 +41,8 @@ fun SignUpScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Create Account",
+            text = "Sign Up",
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Join BudgetBasket to manage shared grocery expenses",
-            textAlign = TextAlign.Center,
             color = Color.Black
         )
 
@@ -63,7 +57,7 @@ fun SignUpScreen(
             leadingIcon = {
                 Icon(Icons.Default.Person, contentDescription = "Name Icon")
             },
-            label = { Text("Full Name") },
+            label = { Text("Name") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -119,30 +113,55 @@ fun SignUpScreen(
         Button(
             onClick = {
                 when {
-                    name.isBlank() -> message = "Please enter your name"
-                    email.isBlank() -> message = "Please enter your email"
-                    password.isBlank() -> message = "Please enter your password"
-                    confirmPassword.isBlank() -> message = "Please confirm your password"
-                    password != confirmPassword -> message = "Passwords do not match"
-                    else -> onSignUpSuccess(name)
+                    name.isBlank() -> {
+                        message = "Please enter your name"
+                    }
+                    email.isBlank() -> {
+                        message = "Please enter your email"
+                    }
+                    password.isBlank() -> {
+                        message = "Please enter your password"
+                    }
+                    confirmPassword.isBlank() -> {
+                        message = "Please confirm your password"
+                    }
+                    password != confirmPassword -> {
+                        message = "Passwords do not match"
+                    }
+                    password.length < 6 -> {
+                        message = "Password must be at least 6 characters"
+                    }
+                    else -> {
+                        auth.createUserWithEmailAndPassword(email.trim(), password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    message = "Signup success"
+                                    onSignUpSuccess(name)
+                                } else {
+                                    message = "Error: ${task.exception?.localizedMessage}"
+                                }
+                            }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Sign Up")
+            Text("Create Account")
         }
 
         if (message.isNotEmpty()) {
             Text(
                 text = message,
                 modifier = Modifier.padding(top = 12.dp),
-                color = Color.Black
+                color = Color.Red
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = onBackToLoginClick) {
+        Button(
+            onClick = onBackToLoginClick
+        ) {
             Text("Back to Login")
         }
     }

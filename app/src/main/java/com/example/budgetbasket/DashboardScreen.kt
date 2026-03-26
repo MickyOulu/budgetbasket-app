@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DashboardScreen(
     userName: String,
-    onOpenGroceryClick: () -> Unit
+    onOpenGroceryClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -56,6 +57,12 @@ fun DashboardScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Open Grocery List")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onLogoutClick) {
+            Text("Logout")
         }
     }
 }
