@@ -41,7 +41,7 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Plan grocery shopping and track shared expenses easily.",
+            text = "Plan grocery shopping and track shared expenses easily :)",
             textAlign = TextAlign.Center,
             color = Color.Black
         )
