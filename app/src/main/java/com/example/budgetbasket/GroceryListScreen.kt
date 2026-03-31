@@ -1,5 +1,8 @@
 package com.example.budgetbasket
 
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+
 import android.window.BackEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+
 data class GroceryItem(
+    val id: String = "",
     val itemName: String,
     val cost: String,
     val addedBy: String,
@@ -37,6 +42,7 @@ fun GroceryListScreen(
     currentUserName: String,
     onBackClick: () -> Unit,
 ) {
+    val db = Firebase.firestore
     var itemText by remember { mutableStateOf("") }
     var costText by remember { mutableStateOf("") }
     var dateText by remember { mutableStateOf("") }
@@ -196,6 +202,12 @@ fun GroceryListScreen(
 
                         TextButton(
                             onClick = {
+                                // 1. if items has id, delete it from cloud
+                                if (item.id.isNotEmpty()) {
+                                        db.collection("grocery_items").document(item.id).delete()
+                                    }
+
+                                // 2. whether items has id, delete it from local
                                 groceryItems.removeAt(index)
                             }
                         ) {
