@@ -12,6 +12,9 @@
 /.idea/misc.xml
 /.idea/studiobot.xml
 
+
+/OverviewProject.md
+
 .DS_Store
 /build
 /captures
