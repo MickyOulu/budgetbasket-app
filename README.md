@@ -21,7 +21,9 @@ BudgetBasket is an Android application designed to help users manage shared groc
 
 ## 📸 Screenshots
 
-*(Add screenshots here once available)*
+![img_2.png](img_2.png) ![img_1.png](img_1.png)
+
+![img.png](img.png)
 
 ## 🏁 Getting Started
 
