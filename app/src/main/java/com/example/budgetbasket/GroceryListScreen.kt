@@ -194,8 +194,8 @@ fun GroceryListScreen(
             Text("Add Item")
         }
 
-        // 新增：显示总支出的文字卡片
-        Spacer(modifier = Modifier.height(16.dp)) // 留出一点空隙
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -211,7 +211,7 @@ fun GroceryListScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "$${String.format(java.util.Locale.US,"%.2f", totalExpenses)}", // 保留两位小数，比如 $25.50
+                    text = "$${String.format(java.util.Locale.getDefault(),"%.2f", totalExpenses)}",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
