@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.dp
 
 data class GroceryItem(
     val id: String = "",
-    val itemName: String,
-    val cost: String,
-    val addedBy: String,
-    val date: String,
-    val week: String
+    val itemName: String = "",
+    val cost: String = "",
+    val addedBy: String = "",
+    val date: String = "",
+    val week: String = ""
 )
 
 @Composable
@@ -50,6 +50,23 @@ fun GroceryListScreen(
     var message by remember { mutableStateOf("") }
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
+
+    LaunchedEffect(Unit) {
+        db.collection("grocery_items")
+            .addSnapshotListener { value, error ->
+                if (error != null) return@addSnapshotListener
+
+                // Clear the old list and add the new data from the cloud
+                groceryItems.clear()
+                for (doc in value!!.documents) {
+                    val item = doc.toObject(GroceryItem::class.java)
+                    if (item != null) {
+                        // We save the document ID so we can delete it later!
+                        groceryItems.add(item.copy(id = doc.id))
+                    }
+                }
+            }
+    }
 
     Column(
         modifier = Modifier
@@ -145,21 +162,25 @@ fun GroceryListScreen(
                     dateText.isBlank() -> message = "Please enter date"
                     weekText.isBlank() -> message = "Please enter week"
                     else -> {
-                        groceryItems.add(
-                            GroceryItem(
-                                itemName = itemText,
-                                cost = costText,
-                                addedBy = currentUserName,
-                                date = dateText,
-                                week = weekText
-                            )
+                        // Create the item object
+                        val newItem = GroceryItem(
+                            itemName = itemText,
+                            cost = costText,
+                            addedBy = currentUserName,
+                            date = dateText,
+                            week = weekText
                         )
 
-                        itemText = ""
-                        costText = ""
-                        dateText = ""
-                        weekText = ""
-                        message = "Item added successfully"
+                        // Save it to Firebase
+                        db.collection("grocery_items")
+                            .add(newItem)
+                            .addOnSuccessListener {
+                                itemText = ""
+                                costText = ""
+                                dateText = ""
+                                weekText = ""
+                                message = "Item successfully saved to cloud!"
+                            }
                     }
                 }
             },
