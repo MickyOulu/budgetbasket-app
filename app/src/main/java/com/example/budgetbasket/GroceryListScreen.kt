@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +51,10 @@ fun GroceryListScreen(
     var message by remember { mutableStateOf("") }
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
+
+    val totalExpenses = groceryItems.sumOf { item ->
+        item.cost.toDoubleOrNull() ?: 0.0
+    }
 
     LaunchedEffect(Unit) {
         db.collection("grocery_items")
@@ -189,6 +194,31 @@ fun GroceryListScreen(
             Text("Add Item")
         }
 
+        // 新增：显示总支出的文字卡片
+        Spacer(modifier = Modifier.height(16.dp)) // 留出一点空隙
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Total Expenses:",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "$${String.format(java.util.Locale.US,"%.2f", totalExpenses)}", // 保留两位小数，比如 $25.50
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+
         if (message.isNotEmpty()) {
             Text(
                 text = message,
@@ -239,4 +269,5 @@ fun GroceryListScreen(
             }
         }
     }
+
 }
