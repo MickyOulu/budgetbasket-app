@@ -1,9 +1,10 @@
 package com.example.budgetbasket
 
+
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 
-import android.window.BackEvent
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+
+import androidx.compose.material3.rememberDatePickerState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import java.util.Timer
+import kotlin.time.Clock
 
 
 data class GroceryItem(
@@ -38,6 +50,7 @@ data class GroceryItem(
     val week: String = ""
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroceryListScreen(
     currentUserName: String,
@@ -49,6 +62,7 @@ fun GroceryListScreen(
     var dateText by remember { mutableStateOf("") }
     var weekText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
 
@@ -135,17 +149,29 @@ fun GroceryListScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = dateText,
-            onValueChange = {
-                dateText = it
-                message = ""
-            },
-            label = { Text("Date (e.g. DD/MM/YYYY)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    showDatePicker = true
+                    message = ""
+                }
+        ) {
+            OutlinedTextField(
+                value = dateText,
+                onValueChange = {},
+                readOnly = true,
+                enabled = false,
+                label = { Text("Select Date") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+
+
+
 
         OutlinedTextField(
             value = weekText,
@@ -167,7 +193,6 @@ fun GroceryListScreen(
                     dateText.isBlank() -> message = "Please enter date"
                     weekText.isBlank() -> message = "Please enter week"
                     else -> {
-                        // Create the item object
                         val newItem = GroceryItem(
                             itemName = itemText,
                             cost = costText,
@@ -176,7 +201,6 @@ fun GroceryListScreen(
                             week = weekText
                         )
 
-                        // Save it to Firebase
                         db.collection("grocery_items")
                             .add(newItem)
                             .addOnSuccessListener {
@@ -194,9 +218,45 @@ fun GroceryListScreen(
             Text("Add Item")
         }
 
+        if (showDatePicker) {
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = System.currentTimeMillis(),
+                selectableDates = object : androidx.compose.material3.SelectableDates{
+                    override fun isSelectableDate(utcTimeMillis : Long): Boolean {
+                        return  utcTimeMillis <= System.currentTimeMillis()
+                    }
+                }
+            )
+
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val selectedMillis = datePickerState.selectedDateMillis
+                            if (selectedMillis != null) {
+                                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                dateText = formatter.format(Date(selectedMillis))
+                            }
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDatePicker = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
