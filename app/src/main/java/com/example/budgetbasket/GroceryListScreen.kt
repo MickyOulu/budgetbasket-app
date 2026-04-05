@@ -3,7 +3,7 @@ package com.example.budgetbasket
 
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
-
+import java.util.Calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -175,11 +175,9 @@ fun GroceryListScreen(
 
         OutlinedTextField(
             value = weekText,
-            onValueChange = {
-                weekText = it
-                message = ""
-            },
-            label = { Text("Week (e.g. Week 4)") },
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Week") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -235,8 +233,14 @@ fun GroceryListScreen(
                         onClick = {
                             val selectedMillis = datePickerState.selectedDateMillis
                             if (selectedMillis != null) {
+                                val selectedDate = Date(selectedMillis)
                                 val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                                 dateText = formatter.format(Date(selectedMillis))
+
+                                val calendar = Calendar.getInstance()
+                                calendar.time = selectedDate
+                                val weekNumber = calendar.get(Calendar.WEEK_OF_MONTH)
+                                weekText = "Week $weekNumber"
                             }
                             showDatePicker = false
                         }
