@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun SignUpScreen(
@@ -31,6 +32,7 @@ fun SignUpScreen(
     var message by remember { mutableStateOf("") }
 
     val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
 
     Column(
         modifier = Modifier
@@ -135,12 +137,30 @@ fun SignUpScreen(
                         auth.createUserWithEmailAndPassword(email.trim(), password)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
-                                    message = "Signup success"
-                                    onSignUpSuccess(name)
+                                    val userId = auth.currentUser?.uid
+
+                                    if (userId != null) {
+                                        val userData = hashMapOf(
+                                            "name" to name.trim(),
+                                            "email" to email.trim()
+                                        )
+
+                                        db.collection("users")
+                                            .document(userId)
+                                            .set(userData)
+                                            .addOnSuccessListener {
+                                                message = "Signup success"
+                                                onSignUpSuccess(name.trim())
+                                            }
+                                            .addOnFailureListener { e ->
+                                                message = "Failed to save user data: ${e.localizedMessage}"
+                                            }
+                                    } else {
+                                        message = "User ID not found"
+                                    }
                                 } else {
                                     message = "Error: ${task.exception?.localizedMessage}"
-                                }
-                            }
+                                }           }
                     }
                 }
             },
