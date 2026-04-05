@@ -1,6 +1,7 @@
 package com.example.budgetbasket
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -11,13 +12,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+
 
 @Composable
 fun LoginScreen(
@@ -27,6 +31,7 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+    var resetMessage by remember { mutableStateOf("")}
 
     val auth = FirebaseAuth.getInstance()
 
@@ -123,6 +128,38 @@ fun LoginScreen(
             )
         }
 
+
+        Text(
+            text = "Forgot Password?",
+            color = Color.Blue,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(8.dp)
+                .clickable(onClick = {
+                    if (email.isBlank()) {
+                        message = "Enter your email first"
+                        resetMessage = ""
+                    } else {
+                        auth.sendPasswordResetEmail(email.trim())
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    resetMessage = "Reset email sent"
+                                    message = ""
+                                } else {
+                                    resetMessage =
+                                        task.exception?.localizedMessage ?: "Error occurred"
+                                }
+                            }
+                    }
+                })
+        )
+        if (resetMessage.isNotEmpty()){
+            Text(
+                text = resetMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(top=8.dp)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = onSignUpClick) {
