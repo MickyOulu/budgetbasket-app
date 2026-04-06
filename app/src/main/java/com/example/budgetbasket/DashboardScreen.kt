@@ -1,26 +1,23 @@
 package com.example.budgetbasket
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.runtime.*
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-
-
+import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 
@@ -40,11 +37,8 @@ fun DashboardScreen(
     val groceryButtonColor = Color(0xFF4CAF50)
     val logoutButtonColor = Color(0xFFFF7043)
 
-    //Firestore and item count state
     val db = Firebase.firestore
-    var groceryItemCount by remember {mutableStateOf(0)}
-
-    //Total Expense
+    var groceryItemCount by remember { mutableStateOf(0) }
     var totalExpenses by remember { mutableStateOf(0.0) }
 
     LaunchedEffect(Unit) {
@@ -84,7 +78,9 @@ fun DashboardScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color.White.copy(alpha = 0.8f)
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Welcome, $userName!",
                     style = MaterialTheme.typography.headlineSmall,
@@ -104,46 +100,114 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = summaryCardColor
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                Text(
-                    text = "Quick Summary",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = summaryTitleColor
-                )
+            Text(
+                text = "Quick Summary",
+                style = MaterialTheme.typography.titleLarge,
+                color = summaryTitleColor
+            )
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "🛒", modifier = Modifier.padding(end = 8.dp))
-                    Text(
-                        text = "$groceryItemCount items in your list",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF2E3A59)
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onOpenGroceryClick() },
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE3F2FD)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Items",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF2E3A59)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "$groceryItemCount",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.Black
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Text(
+                            text = "Tap to view all",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.DarkGray
+                        )
+                    }
                 }
 
-                Text(
-                    text = buildAnnotatedString {
-                        append("Your expense total: ")
-                        withStyle(style = MaterialTheme.typography.displaySmall.toSpanStyle()) {
-                            append("€${String.format("%.2f", totalExpenses)}")
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
-                )
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onOpenGroceryClick() },
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE8F5E9)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Expenses",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF2E3A59)
+                        )
 
-                Text("Weekly budget view: Coming soon", color = Color.Black)
+                        Spacer(modifier = Modifier.height(8.dp))
 
+                        Text(
+                            text = "€${String.format("%.2f", totalExpenses)}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color.Black
+                        )
 
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Text(
+                            text = "Tap to view details",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFF3E0)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Week View",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color(0xFF2E3A59)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Weekly budget view coming soon",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                }
             }
         }
 
