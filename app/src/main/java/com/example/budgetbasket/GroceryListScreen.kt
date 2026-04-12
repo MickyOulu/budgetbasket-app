@@ -315,7 +315,7 @@ fun GroceryListScreen(
                     Text(
                         text = "€${
                             String.format(
-                                java.util.Locale.getDefault(),
+                                Locale.getDefault(),
                                 "%.2f",
                                 totalExpenses
                             )
