@@ -73,7 +73,7 @@ fun DashboardScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = Color(0xFF6C63FF)
+                containerColor = bannerColor
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
@@ -89,7 +89,7 @@ fun DashboardScreen(
                     text = "Welcome, $userName!",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
+                    color = bannerTextColor
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -104,9 +104,10 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Card(
+        ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.elevatedCardColors(
                 containerColor = summaryCardColor
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
