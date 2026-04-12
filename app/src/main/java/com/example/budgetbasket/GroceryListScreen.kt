@@ -142,9 +142,15 @@ fun GroceryListScreen(
                 value = costText,
                 onValueChange = {
                     costText = it
-                    message = ""
+                    costError = false
                 },
                 label = { Text("Cost (€)") },
+                isError = costError,
+                supportingText = {
+                    if (costError) {
+                        Text(text = "Please enter a valid price (e.g., 2.50)", color = MaterialTheme.colorScheme.error)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
