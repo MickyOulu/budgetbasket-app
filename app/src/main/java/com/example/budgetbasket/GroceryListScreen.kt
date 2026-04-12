@@ -200,10 +200,15 @@ fun GroceryListScreen(
             {
                 Button(
                     onClick = {
-                        if (itemText.isBlank() || costText.isBlank() ) {
-                            message = "Please fill in all details"
+
+                        itemNameError = itemText.isBlank()
+                        costError = costText.isBlank() || costText.toDoubleOrNull() == null
+
+                        if(itemNameError || costError) {
+                            message = "Please correct the errors above."
                             return@Button
                         }
+
                         val itemData = GroceryItem(
                             itemName = itemText,
                             cost = costText,
