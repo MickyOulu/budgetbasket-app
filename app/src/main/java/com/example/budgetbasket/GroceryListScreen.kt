@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -61,6 +62,9 @@ fun GroceryListScreen(
     var weekText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+    var editingItemId by remember { mutableStateOf<String?>(null) }
+    var itemNameError by remember { mutableStateOf(false) }
+    var costError by remember { mutableStateOf(false) }
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
 
@@ -120,9 +124,15 @@ fun GroceryListScreen(
                 value = itemText,
                 onValueChange = {
                     itemText = it
-                    message = ""
+                    itemNameError = false
                 },
                 label = { Text("Item name") },
+                isError = itemNameError,
+                supportingText = {
+                    if (itemNameError) {
+                        Text(text = "Item name cannot be empty", color = MaterialTheme.colorScheme.error)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -180,37 +190,51 @@ fun GroceryListScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = {
-                    when {
-                        itemText.isBlank() -> message = "Please enter item name"
-                        costText.isBlank() -> message = "Please enter cost"
-                        dateText.isBlank() -> message = "Please enter date"
-                        weekText.isBlank() -> message = "Please enter week"
-                        else -> {
-                            val newItem = GroceryItem(
-                                itemName = itemText,
-                                cost = costText,
-                                addedBy = currentUserName,
-                                date = dateText,
-                                week = weekText
-                            )
-
-                            db.collection("grocery_items")
-                                .add(newItem)
-                                .addOnSuccessListener {
-                                    itemText = ""
-                                    costText = ""
-                                    dateText = ""
-                                    weekText = ""
-                                    message = "Item successfully saved to cloud!"
-                                }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp))
+            {
+                Button(
+                    onClick = {
+                        if (itemText.isBlank() || costText.isBlank() ) {
+                            message = "Please fill in all details"
+                            return@Button
                         }
+                        val itemData = GroceryItem(
+                            itemName = itemText,
+                            cost = costText,
+                            addedBy = currentUserName,
+                            date = dateText,
+                            week = weekText
+                        )
+
+                        if (editingItemId == null) {
+                            db.collection("grocery_items").add(itemData)
+                        } else {
+                            db.collection("grocery_items").document(editingItemId!!).set(itemData)
+                            editingItemId = null
+                        }
+
+                        itemText = ""
+                        costText = ""
+                        dateText = ""
+                        weekText = ""
+                        message = "Item saved successfully"
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(if (editingItemId == null) "Add Item" else "Update Item")
+                }
+
+                if (editingItemId != null) {
+                    Button(
+                        onClick = {
+                            editingItemId = null
+                            itemText = ""; costText = ""; dateText = ""; weekText = ""; message = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    ) {
+                        Text("Cancel")
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add Item")
+                }
             }
         }
 
@@ -320,6 +344,19 @@ fun GroceryListScreen(
                         modifier = Modifier.weight(1f),
                         color = Color.Black
                     )
+
+                    TextButton(
+                        onClick = {
+                            editingItemId = item.id
+                            itemText = item.itemName
+                            costText = item.cost
+                            dateText = item.date
+                            weekText = item.week
+                            message = "Editing: ${item.itemName}"
+                        }
+                    ) {
+                        Text("Edit")
+                    }
 
                     TextButton(
                         onClick = {
