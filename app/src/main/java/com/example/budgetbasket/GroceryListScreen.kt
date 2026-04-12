@@ -37,8 +37,6 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import java.util.Timer
-import kotlin.time.Clock
 
 
 data class GroceryItem(
@@ -87,251 +85,257 @@ fun GroceryListScreen(
             }
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        Button(
-            onClick = onBackClick,
-            modifier = Modifier.fillMaxWidth()
-       ) {
-            Text("Back to Dashboard")
-        }
-        Text(
-            text = "Grocery List",
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.Black
-        )
+        item {
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onBackClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Back to Dashboard")
+            }
+            Text(
+                text = "Grocery List",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.Black
+            )
 
-        Text(
-            text = "Logged in as: $currentUserName",
-            color = Color.Black
-        )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Logged in as: $currentUserName",
+                color = Color.Black
+            )
 
-        OutlinedTextField(
-            value = itemText,
-            onValueChange = {
-                itemText = it
-                message = ""
-            },
-            label = { Text("Item name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = costText,
-            onValueChange = {
-                costText = it
-                message = ""
-            },
-            label = { Text("Cost (€)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = currentUserName,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Added by") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    showDatePicker = true
-                    message = ""
-                }
-        ) {
             OutlinedTextField(
-                value = dateText,
-                onValueChange = {},
-                readOnly = true,
-                enabled = false,
-                label = { Text("Select Date") },
+                value = itemText,
+                onValueChange = {
+                    itemText = it
+                    message = ""
+                },
+                label = { Text("Item name") },
                 modifier = Modifier.fillMaxWidth()
             )
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
+            OutlinedTextField(
+                value = costText,
+                onValueChange = {
+                    costText = it
+                    message = ""
+                },
+                label = { Text("Cost (€)") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
+            Spacer(modifier = Modifier.height(12.dp))
 
+            OutlinedTextField(
+                value = currentUserName,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Added by") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
+            Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = weekText,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Week") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = {
-                when {
-                    itemText.isBlank() -> message = "Please enter item name"
-                    costText.isBlank() -> message = "Please enter cost"
-                    dateText.isBlank() -> message = "Please enter date"
-                    weekText.isBlank() -> message = "Please enter week"
-                    else -> {
-                        val newItem = GroceryItem(
-                            itemName = itemText,
-                            cost = costText,
-                            addedBy = currentUserName,
-                            date = dateText,
-                            week = weekText
-                        )
-
-                        db.collection("grocery_items")
-                            .add(newItem)
-                            .addOnSuccessListener {
-                                itemText = ""
-                                costText = ""
-                                dateText = ""
-                                weekText = ""
-                                message = "Item successfully saved to cloud!"
-                            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        showDatePicker = true
+                        message = ""
                     }
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Add Item")
+            ) {
+                OutlinedTextField(
+                    value = dateText,
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = false,
+                    label = { Text("Select Date") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = weekText,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Week") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    when {
+                        itemText.isBlank() -> message = "Please enter item name"
+                        costText.isBlank() -> message = "Please enter cost"
+                        dateText.isBlank() -> message = "Please enter date"
+                        weekText.isBlank() -> message = "Please enter week"
+                        else -> {
+                            val newItem = GroceryItem(
+                                itemName = itemText,
+                                cost = costText,
+                                addedBy = currentUserName,
+                                date = dateText,
+                                week = weekText
+                            )
+
+                            db.collection("grocery_items")
+                                .add(newItem)
+                                .addOnSuccessListener {
+                                    itemText = ""
+                                    costText = ""
+                                    dateText = ""
+                                    weekText = ""
+                                    message = "Item successfully saved to cloud!"
+                                }
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add Item")
+            }
         }
 
         if (showDatePicker) {
-            val datePickerState = rememberDatePickerState(
-                initialSelectedDateMillis = System.currentTimeMillis(),
-                selectableDates = object : androidx.compose.material3.SelectableDates{
-                    override fun isSelectableDate(utcTimeMillis : Long): Boolean {
-                        return  utcTimeMillis <= System.currentTimeMillis()
-                    }
-                }
-            )
-
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            val selectedMillis = datePickerState.selectedDateMillis
-                            if (selectedMillis != null) {
-                                val selectedDate = Date(selectedMillis)
-                                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                dateText = formatter.format(Date(selectedMillis))
-
-                                val calendar = Calendar.getInstance()
-                                calendar.time = selectedDate
-                                val weekNumber = calendar.get(Calendar.WEEK_OF_MONTH)
-                                weekText = "Week $weekNumber"
-                            }
-                            showDatePicker = false
+            item {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = System.currentTimeMillis(),
+                    selectableDates = object : androidx.compose.material3.SelectableDates {
+                        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                            return utcTimeMillis <= System.currentTimeMillis()
                         }
-                    ) {
-                        Text("OK")
                     }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDatePicker = false }
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Total Expenses:",
-                    style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    text = "$${String.format(java.util.Locale.getDefault(),"%.2f", totalExpenses)}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
 
-
-        if (message.isNotEmpty()) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(top = 12.dp),
-                color = Color.Black
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            itemsIndexed(groceryItems) { index, item ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = "${index + 1}. ${item.itemName}\n" +
-                                    "Cost: €${item.cost}\n" +
-                                    "Added by: ${item.addedBy}\n" +
-                                    "Date: ${item.date}\n" +
-                                    "Week: ${item.week}",
-                            modifier = Modifier.weight(1f),
-                            color = Color.Black
-                        )
-
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
                         TextButton(
                             onClick = {
-                                // 1. if items has id, delete it from cloud
-                                if (item.id.isNotEmpty()) {
-                                        db.collection("grocery_items").document(item.id).delete()
-                                    }
+                                val selectedMillis = datePickerState.selectedDateMillis
+                                if (selectedMillis != null) {
+                                    val selectedDate = Date(selectedMillis)
+                                    val formatter =
+                                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                    dateText = formatter.format(Date(selectedMillis))
 
-                                // 2. whether items has id, delete it from local
-                                groceryItems.removeAt(index)
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = selectedDate
+                                    val weekNumber = calendar.get(Calendar.WEEK_OF_MONTH)
+                                    weekText = "Week $weekNumber"
+                                }
+                                showDatePicker = false
                             }
                         ) {
-                            Text("Remove")
+                            Text("OK")
                         }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDatePicker = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Total Expenses:",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "€${
+                            String.format(
+                                java.util.Locale.getDefault(),
+                                "%.2f",
+                                totalExpenses
+                            )
+                        }",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            if (message.isNotEmpty()) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(top = 12.dp),
+                    color = Color.Black
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        itemsIndexed(groceryItems) { index, item ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = "${index + 1}. ${item.itemName}\n" +
+                                "Cost: €${item.cost}\n" +
+                                "Added by: ${item.addedBy}\n" +
+                                "Date: ${item.date}\n" +
+                                "Week: ${item.week}",
+                        modifier = Modifier.weight(1f),
+                        color = Color.Black
+                    )
+
+                    TextButton(
+                        onClick = {
+                            // 1. if items has id, delete it from cloud
+                            if (item.id.isNotEmpty()) {
+                                db.collection("grocery_items").document(item.id).delete()
+                            }
+
+                            // 2. whether items has id, delete it from local
+                            groceryItems.removeAt(index)
+                        }
+                    ) {
+                        Text("Remove")
                     }
                 }
             }
         }
     }
-
 }
