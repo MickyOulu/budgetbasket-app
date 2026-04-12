@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.*
-
-
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 
 
 import com.google.firebase.Firebase
@@ -110,20 +110,40 @@ fun DashboardScreen(
             colors = CardDefaults.elevatedCardColors(
                 containerColor = summaryCardColor
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(24.dp)) {
                 Text(
                     text = "Quick Summary",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.labelLarge,
                     color = summaryTitleColor
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                Text("Your grocery items: $groceryItemCount", color = Color.Black)
-                Text("Your expense total: €${String.format("%.2f", totalExpenses)}", color = Color.Black)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "🛒", modifier = Modifier.padding(end = 8.dp))
+                    Text(
+                        text = "$groceryItemCount items in your list",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF2E3A59)
+                    )
+                }
+
+                Text(
+                    text = buildAnnotatedString {
+                        append("Your expense total: ")
+                        withStyle(style = MaterialTheme.typography.displaySmall.toSpanStyle()) {
+                            append("€${String.format("%.2f", totalExpenses)}")
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
+
                 Text("Weekly budget view: Coming soon", color = Color.Black)
+
+
             }
         }
 
