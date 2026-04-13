@@ -1,8 +1,5 @@
 package com.example.budgetbasket
 
-
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
 import java.util.Calendar
 
 import androidx.compose.foundation.background
@@ -59,7 +56,7 @@ fun GroceryListScreen(
     currentUserName: String,
     onBackClick: () -> Unit,
 ) {
-    val db = Firebase.firestore
+    val repository = remember { GroceryRepository() }
     var itemText by remember { mutableStateOf("") }
     var costText by remember { mutableStateOf("") }
     var dateText by remember { mutableStateOf("") }
@@ -79,21 +76,11 @@ fun GroceryListScreen(
 
     LaunchedEffect(Unit) {
         isLoading = true
-        db.collection("grocery_items")
-            .addSnapshotListener { value, error ->
-                if (error != null) return@addSnapshotListener
-                isLoading = false
-
-                // Clear the old list and add the new data from the cloud
-                groceryItems.clear()
-                for (doc in value!!.documents) {
-                    val item = doc.toObject(GroceryItem::class.java)
-                    if (item != null) {
-                        // We save the document ID so we can delete it later!
-                        groceryItems.add(item.copy(id = doc.id))
-                    }
-                }
-            }
+        repository.getItems { items ->
+            isLoading = false
+            groceryItems.clear()
+            groceryItems.addAll(items)
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -217,7 +204,6 @@ fun GroceryListScreen(
                 {
                     Button(
                         onClick = {
-
                             itemNameError = itemText.isBlank()
                             costError = costText.isBlank() || costText.toDoubleOrNull() == null
 
@@ -236,16 +222,11 @@ fun GroceryListScreen(
                                 week = weekText
                             )
 
-                            val firebaseTask = if (editingItemId == null) {
-                                db.collection("grocery_items").add(itemData)
-                            } else {
-                                db.collection("grocery_items").document(editingItemId!!)
-                                    .set(itemData)
-                            }
+                            repository.saveItem(itemData, editingItemId) { success, errorMsg ->
 
-                            firebaseTask.addOnCompleteListener { task ->
                                 isLoading = false
-                                if (task.isSuccessful) {
+                                if (success) {
+
                                     editingItemId = null
                                     itemText = ""
                                     costText = ""
@@ -253,7 +234,8 @@ fun GroceryListScreen(
                                     weekText = ""
                                     message = "Item saved successfully"
                                 } else {
-                                    message = "Error:" + task.exception?.message
+
+                                    message = "Error: $errorMsg"
                                 }
                             }
                         },
@@ -380,12 +362,13 @@ fun GroceryListScreen(
                     onRemove = {
                         if (item.id.isNotEmpty()) {
                             isLoading = true
-                            db.collection("grocery_items")
-                                .document(item.id)
-                                .delete()
-                                .addOnCompleteListener { isLoading = false }
+                            repository.deleteItem(item.id) { success ->
+                                isLoading = false
+                                if (!success) {
+                                    message = "Error deleting item"
+                                }
+                            }
                         }
-                        groceryItems.removeAt(index)
                     }
                 )
             }
