@@ -366,75 +366,28 @@ fun GroceryListScreen(
             }
 
             itemsIndexed(groceryItems) { index, item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp, vertical = 2.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = item.itemName,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                            Text(
-                                text = "Added by: ${item.addedBy} • ${item.date}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
+                GroceryItemRow(
+                    index = index,
+                    item = item,
+                    onEdit = {
+                        editingItemId = item.id
+                        itemText = item.itemName
+                        costText = item.cost
+                        dateText = item.date
+                        weekText = item.week
+                        message = "Editing: ${item.itemName}"
+                    },
+                    onRemove = {
+                        if (item.id.isNotEmpty()) {
+                            isLoading = true
+                            db.collection("grocery_items")
+                                .document(item.id)
+                                .delete()
+                                .addOnCompleteListener { isLoading = false }
                         }
-
-                        Text(
-                            text = "€${item.cost}",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                        TextButton(
-                            onClick = {
-                                editingItemId = item.id
-                                itemText = item.itemName
-                                costText = item.cost
-                                dateText = item.date
-                                weekText = item.week
-                                message = "Editing: ${item.itemName}"
-                            }
-                        ) {
-                            Text("Edit")
-                        }
-
-                        TextButton(
-                            onClick = {
-                                // 1. if items has id, delete it from cloud
-                                if (item.id.isNotEmpty()) {
-                                    isLoading = true
-                                    db.collection("grocery_items")
-                                        .document(item.id)
-                                        .delete()
-                                        .addOnSuccessListener {
-                                            isLoading = false
-                                        }
-                                        .addOnFailureListener {
-                                            isLoading = false
-                                        }
-                                }
-
-                                // 2. whether items has id, delete it from local
-                                groceryItems.removeAt(index)
-                            }
-                        ) {
-                            Text("Remove")
-                        }
+                        groceryItems.removeAt(index)
                     }
-                }
+                )
             }
         }
 
@@ -452,3 +405,50 @@ fun GroceryListScreen(
     }
 }
 
+@Composable
+fun GroceryItemRow(
+    index: Int,
+    item: GroceryItem,
+    onEdit: () -> Unit,
+    onRemove: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 2.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${index + 1}. ${item.itemName}",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    text = "Added by: ${item.addedBy} • ${item.date}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+
+            Text(
+                text = "€${item.cost}",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Row {
+                TextButton(onClick = onEdit) { Text("Edit") }
+                TextButton(onClick = onRemove) { Text("Remove", color = Color.Red) }
+            }
+        }
+    }
+}
