@@ -60,9 +60,27 @@ class MainActivity : ComponentActivity() {
 
                         "login" -> LoginScreen(
                             onSignUpClick = { currentScreen = "signup" },
-                            onLoginSuccess = { enteredName ->
-                                currentUserName = enteredName
-                                currentScreen = "dashboard"
+                            onLoginSuccess = {
+                                val loggedInUser = auth.currentUser
+                                val userId = loggedInUser?.uid
+
+                                if (userId != null) {
+                                    db.collection("users")
+                                        .document(userId)
+                                        .get()
+                                        .addOnSuccessListener { document ->
+                                        val savedName = document.getString("name")
+
+                                        currentUserName = if ( !savedName.isNullOrEmpty()){
+                                            savedName
+                                        }
+                                        else {
+                                            loggedInUser.email ?: ""
+                                        }
+                                        currentScreen = "dashboard"}
+                                } else {
+                                    currentScreen = "dashboard"
+                                }
                             }
                         )
 
