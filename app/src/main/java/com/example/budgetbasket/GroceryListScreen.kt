@@ -47,7 +47,8 @@ data class GroceryItem(
     val cost: String = "",
     val addedBy: String = "",
     val date: String = "",
-    val week: String = ""
+    val week: String = "",
+    val category: String = "Food"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +62,19 @@ fun GroceryListScreen(
     var costText by remember { mutableStateOf("") }
     var dateText by remember { mutableStateOf("") }
     var weekText by remember { mutableStateOf("") }
+
+    var categoryText by remember { mutableStateOf("Food") }
+    var showCategoryMenu by remember { mutableStateOf(false) }
+    val categories = listOf(
+        "Produce",
+        "Meat & Seafood",
+        "Dairy & Eggs",
+        "Pantry & Grains",
+        "Snacks & Drinks",
+        "Household",
+        "Personal Care"
+    )
+
     var message by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var editingItemId by remember { mutableStateOf<String?>(null) }
@@ -82,6 +96,8 @@ fun GroceryListScreen(
             groceryItems.addAll(items)
         }
     }
+
+    Spacer(modifier = Modifier.height(12.dp))
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -157,6 +173,40 @@ fun GroceryListScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = categoryText,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Category") },
+                        trailingIcon = {
+                            Text(
+                                text = if (showCategoryMenu) "▲" else "▼",
+                                modifier = Modifier.clickable { showCategoryMenu = true }.padding(12.dp)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().clickable { showCategoryMenu = true }
+                    )
+
+                    androidx.compose.material3.DropdownMenu(
+                        expanded = showCategoryMenu,
+                        onDismissRequest = { showCategoryMenu = false },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        categories.forEach { label ->
+                            androidx.compose.material3.DropdownMenuItem(
+                                text = { Text(label) },
+                                onClick = {
+                                    categoryText = label
+                                    showCategoryMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 OutlinedTextField(
                     value = currentUserName,
                     onValueChange = {},
@@ -219,19 +269,20 @@ fun GroceryListScreen(
                                 cost = costText,
                                 addedBy = currentUserName,
                                 date = dateText,
-                                week = weekText
+                                week = weekText,
+                                category = categoryText
                             )
 
                             repository.saveItem(itemData, editingItemId) { success, errorMsg ->
 
                                 isLoading = false
                                 if (success) {
-
                                     editingItemId = null
                                     itemText = ""
                                     costText = ""
                                     dateText = ""
                                     weekText = ""
+                                    categoryText = "Food"
                                     message = "Item saved successfully"
                                 } else {
 
@@ -342,9 +393,8 @@ fun GroceryListScreen(
                         color = Color.Black
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
             }
 
             itemsIndexed(groceryItems) { index, item ->
@@ -357,6 +407,7 @@ fun GroceryListScreen(
                         costText = item.cost
                         dateText = item.date
                         weekText = item.week
+                        categoryText = item.category
                         message = "Editing: ${item.itemName}"
                     },
                     onRemove = {
@@ -413,6 +464,12 @@ fun GroceryItemRow(
                 Text(
                     text = "${index + 1}. ${item.itemName}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    text = "Category: ${item.category}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 2.dp)
                 )
                 Text(
                     text = "Added by: ${item.addedBy} • ${item.date}",
