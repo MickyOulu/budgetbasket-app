@@ -205,7 +205,7 @@ fun GroceryListScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 OutlinedTextField(
                     value = currentUserName,
