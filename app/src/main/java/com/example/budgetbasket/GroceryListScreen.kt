@@ -1,55 +1,47 @@
 package com.example.budgetbasket
 
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
-
-data class GroceryItem(
-    val id: String = "",
-    val itemName: String = "",
-    val cost: String = "",
-    val addedBy: String = "",
-    val date: String = "",
-    val week: String = "",
-    val category: String = "Food"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +50,7 @@ fun GroceryListScreen(
     onBackClick: () -> Unit,
 ) {
     val repository = remember { GroceryRepository() }
+
     var itemText by remember { mutableStateOf("") }
     var costText by remember { mutableStateOf("") }
     var dateText by remember { mutableStateOf("") }
@@ -65,7 +58,9 @@ fun GroceryListScreen(
 
     var categoryText by remember { mutableStateOf("Food") }
     var showCategoryMenu by remember { mutableStateOf(false) }
+
     val categories = listOf(
+        "Food",
         "Produce",
         "Meat & Seafood",
         "Dairy & Eggs",
@@ -74,6 +69,10 @@ fun GroceryListScreen(
         "Household",
         "Personal Care"
     )
+
+    var selectedWeekFilter by remember { mutableStateOf("All Weeks") }
+    val weekOptions = listOf("All Weeks", "Week 1", "Week 2", "Week 3", "Week 4", "Week 5")
+    var showWeekFilterMenu by remember { mutableStateOf(false) }
 
     var message by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -84,9 +83,30 @@ fun GroceryListScreen(
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
 
-    val totalExpenses = groceryItems.sumOf { item ->
+    val pieChartColors = listOf(
+        Color(0xFF42A5F5),
+        Color(0xFF66BB6A),
+        Color(0xFFFFCA28),
+        Color(0xFFEF5350),
+        Color(0xFFAB47BC),
+        Color(0xFF26C6DA)
+    )
+
+    val filteredGroceryItems = if (selectedWeekFilter == "All Weeks") {
+        groceryItems
+    } else {
+        groceryItems.filter { it.week == selectedWeekFilter }
+    }
+
+    val totalExpenses = filteredGroceryItems.sumOf { item ->
         item.cost.toDoubleOrNull() ?: 0.0
     }
+
+    val expensesByPerson = filteredGroceryItems
+        .groupBy { it.addedBy }
+        .mapValues { entry ->
+            entry.value.sumOf { it.cost.toDoubleOrNull() ?: 0.0 }
+        }
 
     LaunchedEffect(Unit) {
         isLoading = true
@@ -97,8 +117,6 @@ fun GroceryListScreen(
         }
     }
 
-    Spacer(modifier = Modifier.height(12.dp))
-
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -107,15 +125,16 @@ fun GroceryListScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             item {
-
                 Button(
                     onClick = onBackClick,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Back to Dashboard")
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
                     text = "Grocery List",
                     style = MaterialTheme.typography.headlineMedium,
@@ -182,19 +201,23 @@ fun GroceryListScreen(
                         trailingIcon = {
                             Text(
                                 text = if (showCategoryMenu) "▲" else "▼",
-                                modifier = Modifier.clickable { showCategoryMenu = true }.padding(12.dp)
+                                modifier = Modifier
+                                    .clickable { showCategoryMenu = true }
+                                    .padding(12.dp)
                             )
                         },
-                        modifier = Modifier.fillMaxWidth().clickable { showCategoryMenu = true }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showCategoryMenu = true }
                     )
 
-                    androidx.compose.material3.DropdownMenu(
+                    DropdownMenu(
                         expanded = showCategoryMenu,
                         onDismissRequest = { showCategoryMenu = false },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         categories.forEach { label ->
-                            androidx.compose.material3.DropdownMenuItem(
+                            DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
                                     categoryText = label
@@ -205,7 +228,7 @@ fun GroceryListScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = currentUserName,
@@ -247,11 +270,56 @@ fun GroceryListScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedWeekFilter,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Filter by Week") },
+                        trailingIcon = {
+                            Text(
+                                text = if (showWeekFilterMenu) "▲" else "▼",
+                                modifier = Modifier
+                                    .clickable { showWeekFilterMenu = true }
+                                    .padding(12.dp)
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showWeekFilterMenu = true }
+                    )
+
+                    DropdownMenu(
+                        expanded = showWeekFilterMenu,
+                        onDismissRequest = { showWeekFilterMenu = false },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        weekOptions.forEach { week ->
+                            DropdownMenuItem(
+                                text = { Text(week) },
+                                onClick = {
+                                    selectedWeekFilter = week
+                                    showWeekFilterMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Showing data for: $selectedWeekFilter",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                )
-                {
+                ) {
                     Button(
                         onClick = {
                             itemNameError = itemText.isBlank()
@@ -274,8 +342,8 @@ fun GroceryListScreen(
                             )
 
                             repository.saveItem(itemData, editingItemId) { success, errorMsg ->
-
                                 isLoading = false
+
                                 if (success) {
                                     editingItemId = null
                                     itemText = ""
@@ -285,7 +353,6 @@ fun GroceryListScreen(
                                     categoryText = "Food"
                                     message = "Item saved successfully"
                                 } else {
-
                                     message = "Error: $errorMsg"
                                 }
                             }
@@ -299,8 +366,12 @@ fun GroceryListScreen(
                         Button(
                             onClick = {
                                 editingItemId = null
-                                itemText = ""; costText = ""; dateText = ""; weekText =
-                                ""; message = ""
+                                itemText = ""
+                                costText = ""
+                                dateText = ""
+                                weekText = ""
+                                categoryText = "Food"
+                                message = ""
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
                         ) {
@@ -329,9 +400,8 @@ fun GroceryListScreen(
                                     val selectedMillis = datePickerState.selectedDateMillis
                                     if (selectedMillis != null) {
                                         val selectedDate = Date(selectedMillis)
-                                        val formatter =
-                                            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                        dateText = formatter.format(Date(selectedMillis))
+                                        val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                        dateText = formatter.format(selectedDate)
 
                                         val calendar = Calendar.getInstance()
                                         calendar.time = selectedDate
@@ -374,18 +444,72 @@ fun GroceryListScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "€${
-                                String.format(
-                                    Locale.getDefault(),
-                                    "%.2f",
-                                    totalExpenses
-                                )
-                            }",
+                            text = "€${String.format(Locale.getDefault(), "%.2f", totalExpenses)}",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (expensesByPerson.isNotEmpty() && totalExpenses > 0) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Expense Breakdown",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Black
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            ExpensePieChart(
+                                expensesByPerson = expensesByPerson,
+                                totalExpenses = totalExpenses
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            expensesByPerson.entries.forEachIndexed { index, entry ->
+                                val percentage = if (totalExpenses > 0) {
+                                    (entry.value / totalExpenses) * 100
+                                } else {
+                                    0.0
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .background(
+                                                color = pieChartColors[index % pieChartColors.size],
+                                                shape = CircleShape
+                                            )
+                                    )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    Text(
+                                        text = "${entry.key}: €${String.format("%.2f", entry.value)} (${String.format("%.0f", percentage)}%)",
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 if (message.isNotEmpty()) {
                     Text(
                         text = message,
@@ -393,11 +517,11 @@ fun GroceryListScreen(
                         color = Color.Black
                     )
                 }
-                Spacer(modifier = Modifier.height(36.dp))
 
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
-            itemsIndexed(groceryItems) { index, item ->
+            itemsIndexed(filteredGroceryItems) { index, item ->
                 GroceryItemRow(
                     index = index,
                     item = item,
@@ -465,12 +589,14 @@ fun GroceryItemRow(
                     text = "${index + 1}. ${item.itemName}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
+
                 Text(
                     text = "Category: ${item.category}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 2.dp)
                 )
+
                 Text(
                     text = "Added by: ${item.addedBy} • ${item.date}",
                     style = MaterialTheme.typography.bodySmall,
@@ -486,8 +612,12 @@ fun GroceryItemRow(
             )
 
             Row {
-                TextButton(onClick = onEdit) { Text("Edit") }
-                TextButton(onClick = onRemove) { Text("Remove", color = Color.Red) }
+                TextButton(onClick = onEdit) {
+                    Text("Edit")
+                }
+                TextButton(onClick = onRemove) {
+                    Text("Remove", color = Color.Red)
+                }
             }
         }
     }
