@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +51,7 @@ fun GroceryListScreen(
     onBackClick: () -> Unit,
 ) {
     val repository = remember { GroceryRepository() }
+    val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     var itemText by remember { mutableStateOf("") }
     var costText by remember { mutableStateOf("") }
@@ -74,6 +76,8 @@ fun GroceryListScreen(
     val weekOptions = listOf("All Weeks", "Week 1", "Week 2", "Week 3", "Week 4", "Week 5")
     var showWeekFilterMenu by remember { mutableStateOf(false) }
 
+    var selectedCategoryForDetails by remember { mutableStateOf<String?>(null) }
+
     var message by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var editingItemId by remember { mutableStateOf<String?>(null) }
@@ -92,6 +96,9 @@ fun GroceryListScreen(
         Color(0xFF26C6DA)
     )
 
+    val selectedLegendBackgroundColor = Color(0xFFE3F2FD)
+    val selectedLegendTextColor = Color(0xFF1565C0)
+
     val filteredGroceryItems = if (selectedWeekFilter == "All Weeks") {
         groceryItems
     } else {
@@ -102,7 +109,23 @@ fun GroceryListScreen(
         item.cost.toDoubleOrNull() ?: 0.0
     }
 
-    val expensesByPerson = filteredGroceryItems
+    val expensesByCategory = filteredGroceryItems
+        .groupBy { it.category }
+        .mapValues { entry ->
+            entry.value.sumOf { it.cost.toDoubleOrNull() ?: 0.0 }
+        }
+
+    val selectedCategoryItems = if (selectedCategoryForDetails == null) {
+        emptyList()
+    } else {
+        filteredGroceryItems.filter { it.category == selectedCategoryForDetails }
+    }
+
+    val selectedCategoryTotal = selectedCategoryItems.sumOf { item ->
+        item.cost.toDoubleOrNull() ?: 0.0
+    }
+
+    val expensesByPersonInSelectedCategory = selectedCategoryItems
         .groupBy { it.addedBy }
         .mapValues { entry ->
             entry.value.sumOf { it.cost.toDoubleOrNull() ?: 0.0 }
@@ -299,6 +322,7 @@ fun GroceryListScreen(
                                 text = { Text(week) },
                                 onClick = {
                                     selectedWeekFilter = week
+                                    selectedCategoryForDetails = null
                                     showWeekFilterMenu = false
                                 }
                             )
@@ -336,6 +360,7 @@ fun GroceryListScreen(
                                 itemName = itemText,
                                 cost = costText,
                                 addedBy = currentUserName,
+                                addedByUid = currentUserUid,
                                 date = dateText,
                                 week = weekText,
                                 category = categoryText
@@ -453,14 +478,14 @@ fun GroceryListScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (expensesByPerson.isNotEmpty() && totalExpenses > 0) {
+                if (expensesByCategory.isNotEmpty() && totalExpenses > 0) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Expense Breakdown",
+                                text = "Expense Breakdown by Category",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.Black
                             )
@@ -468,15 +493,103 @@ fun GroceryListScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             ExpensePieChart(
-                                expensesByPerson = expensesByPerson,
+                                expensesByPerson = expensesByCategory,
                                 totalExpenses = totalExpenses
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text(
+                                text = "Tap a category below to see who contributed",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            expensesByCategory.entries.forEachIndexed { index, entry ->
+                                val percentage = if (totalExpenses > 0) {
+                                    (entry.value / totalExpenses) * 100
+                                } else {
+                                    0.0
+                                }
+
+                                val isSelected = selectedCategoryForDetails == entry.key
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = if (isSelected) selectedLegendBackgroundColor else Color.Transparent,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .clickable {
+                                            selectedCategoryForDetails = entry.key
+                                        }
+                                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .background(
+                                                color = pieChartColors[index % pieChartColors.size],
+                                                shape = CircleShape
+                                            )
+                                    )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    Text(
+                                        text = "${entry.key}: €${String.format("%.2f", entry.value)} (${String.format("%.0f", percentage)}%)",
+                                        color = if (isSelected) selectedLegendTextColor else Color.Black,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                if (
+                    selectedCategoryForDetails != null &&
+                    expensesByPersonInSelectedCategory.isNotEmpty() &&
+                    selectedCategoryTotal > 0
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FBFF))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Who contributed in $selectedCategoryForDetails",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Black
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            TextButton(
+                                onClick = { selectedCategoryForDetails = null }
+                            ) {
+                                Text("Clear Selection")
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            ExpensePieChart(
+                                expensesByPerson = expensesByPersonInSelectedCategory,
+                                totalExpenses = selectedCategoryTotal
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            expensesByPerson.entries.forEachIndexed { index, entry ->
-                                val percentage = if (totalExpenses > 0) {
-                                    (entry.value / totalExpenses) * 100
+                            expensesByPersonInSelectedCategory.entries.forEachIndexed { index, entry ->
+                                val percentage = if (selectedCategoryTotal > 0) {
+                                    (entry.value / selectedCategoryTotal) * 100
                                 } else {
                                     0.0
                                 }
@@ -521,10 +634,11 @@ fun GroceryListScreen(
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            itemsIndexed(filteredGroceryItems) { index, item ->
+            itemsIndexed(filteredGroceryItems.reversed()) { index, item ->
                 GroceryItemRow(
                     index = index,
                     item = item,
+                    canModify = item.addedByUid == currentUserUid,
                     onEdit = {
                         editingItemId = item.id
                         itemText = item.itemName
@@ -567,6 +681,7 @@ fun GroceryListScreen(
 fun GroceryItemRow(
     index: Int,
     item: GroceryItem,
+    canModify: Boolean,
     onEdit: () -> Unit,
     onRemove: () -> Unit
 ) {
@@ -611,12 +726,14 @@ fun GroceryItemRow(
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            Row {
-                TextButton(onClick = onEdit) {
-                    Text("Edit")
-                }
-                TextButton(onClick = onRemove) {
-                    Text("Remove", color = Color.Red)
+            if (canModify) {
+                Row {
+                    TextButton(onClick = onEdit) {
+                        Text("Edit")
+                    }
+                    TextButton(onClick = onRemove) {
+                        Text("Remove", color = Color.Red)
+                    }
                 }
             }
         }

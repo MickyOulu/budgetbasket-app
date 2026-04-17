@@ -7,5 +7,6 @@ data class GroceryItem(
     val addedBy: String = "",
     val addedByUid: String = "",
     val date: String = "",
-    val week: String = ""
+    val week: String = "",
+    val category: String = "Food"
 )
