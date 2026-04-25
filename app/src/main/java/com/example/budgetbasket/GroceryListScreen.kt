@@ -48,12 +48,10 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun GroceryListScreen(
     currentUserName: String,
+    groupID: String,
     onBackClick: () -> Unit,
 ) {
-    // hard coded group id for now
-    val testGroupId = "Oulu-Apartment-402"
-    val repository = remember { GroceryRepository(testGroupId) }
-
+    val repository = remember(groupID) { GroceryRepository(groupID) }
     val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     var itemText by remember { mutableStateOf("") }

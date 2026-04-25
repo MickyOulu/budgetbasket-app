@@ -3,9 +3,12 @@ package com.example.budgetbasket
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.budgetbasket.ui.theme.BudgetBasketTheme
@@ -29,9 +32,10 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                var currentUserName by remember {
-                    mutableStateOf("")
+                var currentUserName by remember { mutableStateOf("")
                 }
+
+                var currentGroupId by remember { mutableStateOf("") }
 
                 LaunchedEffect(firebaseUser) {
                     val userId = firebaseUser?.uid
@@ -41,10 +45,8 @@ class MainActivity : ComponentActivity() {
                             .document(userId)
                             .get()
                             .addOnSuccessListener { document ->
-                                val savedName = document.getString("name")
-                                if (!savedName.isNullOrEmpty()) {
-                                    currentUserName = savedName
-                                }
+                                currentUserName = document.getString("name") ?: ""
+                                currentGroupId = document.getString("groupId") ?: ""
                             }
                     }
                 }
@@ -69,15 +71,10 @@ class MainActivity : ComponentActivity() {
                                         .document(userId)
                                         .get()
                                         .addOnSuccessListener { document ->
-                                        val savedName = document.getString("name")
-
-                                        currentUserName = if ( !savedName.isNullOrEmpty()){
-                                            savedName
+                                            currentUserName = document.getString("name") ?: (loggedInUser.email ?: "")
+                                            currentGroupId = document.getString("groupId") ?: ""
+                                            currentScreen = "dashboard"
                                         }
-                                        else {
-                                            loggedInUser.email ?: ""
-                                        }
-                                        currentScreen = "dashboard"}
                                 } else {
                                     currentScreen = "dashboard"
                                 }
@@ -92,18 +89,30 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        "dashboard" -> DashboardScreen(
-                            userName = currentUserName,
-                            onOpenGroceryClick = { currentScreen = "grocery" },
-                            onLogoutClick = {
-                                auth.signOut()
-                                currentUserName = ""
-                                currentScreen = "login"
+                        "dashboard" -> {
+                            // if currentGroupId is empty, show a loading screen
+                            if (currentGroupId.isEmpty()) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                }
+                            } else {
+                                DashboardScreen(
+                                    userName = currentUserName,
+                                    groupID = currentGroupId,
+                                    onOpenGroceryClick = { currentScreen = "grocery" },
+                                    onLogoutClick = {
+                                        auth.signOut()
+                                        currentUserName = ""
+                                        currentGroupId = ""
+                                        currentScreen = "login"
+                                    }
+                                )
                             }
-                        )
+                        }
 
                         "grocery" -> GroceryListScreen(
                             currentUserName = currentUserName,
+                            groupID = currentGroupId,
                             onBackClick = { currentScreen = "dashboard" }
                         )
 

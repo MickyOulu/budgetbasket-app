@@ -20,10 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import java.util.Locale
 
 @Composable
 fun DashboardScreen(
     userName: String,
+    groupID: String,
     onOpenGroceryClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -37,8 +39,8 @@ fun DashboardScreen(
     val groceryButtonColor = Color(0xFF4CAF50)
     val logoutButtonColor = Color(0xFFFF7043)
 
-    val testGroupId = "Oulu-Apartment-402"
-    val repository = remember { GroceryRepository(testGroupId) }
+
+    val repository = remember(groupID) { GroceryRepository(groupID) }
     var groceryItemCount by remember { mutableStateOf(0) }
     var totalExpenses by remember { mutableStateOf(0.0) }
 
@@ -169,7 +171,7 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "€${String.format("%.2f", totalExpenses)}",
+                            text = "€${String.format(Locale.getDefault(), "%.2f", totalExpenses)}",
                             style = MaterialTheme.typography.headlineSmall,
                             color = Color.Black
                         )

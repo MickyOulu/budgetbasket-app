@@ -28,6 +28,7 @@ fun SignUpScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var groupId by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
@@ -94,6 +95,15 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = groupId,
+            onValueChange = { groupId = it },
+            label = { Text("Group ID (e.g., Room-101)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -130,6 +140,9 @@ fun SignUpScreen(
                     password != confirmPassword -> {
                         message = "Passwords do not match"
                     }
+                    groupId.isBlank() -> {
+                        message = "Please enter a Group ID"
+                    }
                     password.length < 6 -> {
                         message = "Password must be at least 6 characters"
                     }
@@ -142,7 +155,8 @@ fun SignUpScreen(
                                     if (userId != null) {
                                         val userData = hashMapOf(
                                             "name" to name.trim(),
-                                            "email" to email.trim()
+                                            "email" to email.trim(),
+                                            "groupId" to groupId.trim()
                                         )
 
                                         db.collection("users")
