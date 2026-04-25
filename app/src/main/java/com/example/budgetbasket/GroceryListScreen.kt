@@ -88,6 +88,8 @@ fun GroceryListScreen(
     var itemNameError by remember { mutableStateOf(false) }
     var costError by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var itemToDelete by remember { mutableStateOf<GroceryItem?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val groceryItems = remember { mutableStateListOf<GroceryItem>() }
 
@@ -649,18 +651,40 @@ fun GroceryListScreen(
                         message = "Editing: ${item.itemName}"
                     },
                     onRemove = {
-                        if (item.id.isNotEmpty()) {
-                            isLoading = true
-                            repository.deleteItem(item.id) { success ->
-                                isLoading = false
-                                if (!success) {
-                                    message = "Error deleting item"
-                                }
-                            }
-                        }
+                        // only record the item to be deleted
+                        itemToDelete = item
+                        showDeleteDialog = true
                     }
                 )
             }
+        }
+
+        if (showDeleteDialog) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Item?") },
+                text = { Text("Are you sure you want to remove this?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            itemToDelete?.let { item ->
+                                isLoading = true
+                                repository.deleteItem(item.id) {
+                                    isLoading = false
+                                    showDeleteDialog = false
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Delete", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
 
         if (isLoading) {
