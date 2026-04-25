@@ -619,7 +619,7 @@ fun GroceryListScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
 
                                     Text(
-                                        text = "${entry.key}: €${String.format("%.2f", entry.value)} (${String.format("%.0f", percentage)}%)",
+                                        text = "${entry.key}: €${String.format(Locale.getDefault(), "%.2f", entry.value)} (${String.format(Locale.getDefault(), "%.0f", percentage)}%)",
                                         color = Color.Black
                                     )
                                 }
