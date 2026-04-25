@@ -37,23 +37,23 @@ fun DashboardScreen(
     val groceryButtonColor = Color(0xFF4CAF50)
     val logoutButtonColor = Color(0xFFFF7043)
 
-    val db = Firebase.firestore
+    val repository = remember { GroceryRepository() }
     var groceryItemCount by remember { mutableStateOf(0) }
     var totalExpenses by remember { mutableStateOf(0.0) }
 
     LaunchedEffect(Unit) {
-        db.collection("grocery_items")
-            .addSnapshotListener { value, error ->
-                if (error != null) return@addSnapshotListener
+        // use repository to get item count and total expenses
+        repository.getItems { items, error ->
+            if (error == null) {
+                // update item count and total expenses
+                groceryItemCount = items.size
 
-                val documents = value?.documents ?: emptyList()
-
-                groceryItemCount = documents.size
-
-                totalExpenses = documents.sumOf { doc ->
-                    doc.getString("cost")?.toDoubleOrNull() ?: 0.0
+                // update total expenses
+                totalExpenses = items.sumOf { item ->
+                    item.cost.toDoubleOrNull() ?: 0.0
                 }
             }
+        }
     }
 
     Column(
