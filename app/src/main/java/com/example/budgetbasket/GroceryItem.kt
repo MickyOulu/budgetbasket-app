@@ -8,5 +8,5 @@ data class GroceryItem(
     val addedByUid: String = "",
     val date: String = "",
     val week: String = "",
-    val category: String = "Food"
+    val category: String = "Produce (Fruits & Veggies)"
 )

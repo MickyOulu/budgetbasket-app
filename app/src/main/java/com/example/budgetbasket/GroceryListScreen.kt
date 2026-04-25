@@ -58,18 +58,21 @@ fun GroceryListScreen(
     var dateText by remember { mutableStateOf("") }
     var weekText by remember { mutableStateOf("") }
 
-    var categoryText by remember { mutableStateOf("Food") }
+    var categoryText by remember { mutableStateOf("Produce (Fruits & Veggies)") }
     var showCategoryMenu by remember { mutableStateOf(false) }
 
     val categories = listOf(
-        "Food",
-        "Produce",
-        "Meat & Seafood",
-        "Dairy & Eggs",
-        "Pantry & Grains",
-        "Snacks & Drinks",
-        "Household",
-        "Personal Care"
+        "Produce (Fruits & Veggies)",
+        "Meat, Poultry & Seafood",
+        "Dairy, Eggs & Cheese",
+        "Bakery & Bread",
+        "Frozen Foods",
+        "Pantry (Grains & Pasta)",
+        "Beverages & Drinks",
+        "Snacks & Sweets",
+        "Personal Care & Health",
+        "Household & Cleaning",
+        "Others"
     )
 
     var selectedWeekFilter by remember { mutableStateOf("All Weeks") }
@@ -379,7 +382,7 @@ fun GroceryListScreen(
                                     costText = ""
                                     dateText = ""
                                     weekText = ""
-                                    categoryText = "Food"
+                                    categoryText = "Produce (Fruits & Veggies)"
                                     message = "Item saved successfully"
                                 } else {
                                     message = "Error: $errorMsg"
@@ -399,7 +402,7 @@ fun GroceryListScreen(
                                 costText = ""
                                 dateText = ""
                                 weekText = ""
-                                categoryText = "Food"
+                                categoryText = "Produce (Fruits & Veggies)"
                                 message = ""
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
