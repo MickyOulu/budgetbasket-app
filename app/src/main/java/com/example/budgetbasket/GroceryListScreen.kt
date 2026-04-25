@@ -133,10 +133,14 @@ fun GroceryListScreen(
 
     LaunchedEffect(Unit) {
         isLoading = true
-        repository.getItems { items ->
+        repository.getItems { items, error ->
             isLoading = false
-            groceryItems.clear()
-            groceryItems.addAll(items)
+            if (error == null) {
+                groceryItems.clear()
+                groceryItems.addAll(items)
+            } else {
+                message = "Loading Error: $error"
+            }
         }
     }
 
