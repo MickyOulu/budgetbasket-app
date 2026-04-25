@@ -50,7 +50,10 @@ fun GroceryListScreen(
     currentUserName: String,
     onBackClick: () -> Unit,
 ) {
-    val repository = remember { GroceryRepository() }
+    // hard coded group id for now
+    val testGroupId = "Oulu-Apartment-402"
+    val repository = remember { GroceryRepository(testGroupId) }
+
     val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     var itemText by remember { mutableStateOf("") }

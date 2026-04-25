@@ -1,4 +1,3 @@
-// 文件：app/src/main/java/com/example/budgetbasket/GroceryRepository.kt
 package com.example.budgetbasket
 
 import com.google.firebase.auth.FirebaseAuth
@@ -6,44 +5,37 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
-class GroceryRepository {
+class GroceryRepository(private val groupId: String) {
     private val db = FirebaseFirestore.getInstance()
 
-    /* Dynamically retrieve the current user's favorites path.
-    Check the current UID in real time every time a CRUD operation is called. */
-    private fun getMyCollection(): CollectionReference {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
-        return db.collection("users").document(uid).collection("items")
+    private fun getGroupCollection(): CollectionReference {
+        return db.collection("groups").document(groupId).collection("items")
     }
 
-    //  Retrieve data (with added error-handling callbacks)
+    // --- LOAD FROM FIREBASE ---
     fun getItems(onResult: (List<GroceryItem>, String?) -> Unit): ListenerRegistration {
-        return getMyCollection().addSnapshotListener { value, error ->
+        return getGroupCollection().addSnapshotListener { value, error ->
             if (error != null) {
-                /*
-                If an error occurs (such as insufficient permissions),
-                display the error message in the UI and stop the loading process.
-                */
                 onResult(emptyList(), error.message)
                 return@addSnapshotListener
             }
-
             val items = value?.documents?.mapNotNull { doc ->
                 doc.toObject(GroceryItem::class.java)?.copy(id = doc.id)
             } ?: emptyList()
-
-            // Success: Data transferred; error messages set to null
             onResult(items, null)
         }
     }
 
-    // Save data
+    // --- SAVE TO FIREBASE  ---
     fun saveItem(item: GroceryItem, id: String?, onComplete: (Boolean, String?) -> Unit) {
-        val collection = getMyCollection() // use the dynamic path
+        val collection = getGroupCollection()
+
+        val itemWithGroup = item.copy(groupId = groupId)
+
         val task = if (id == null) {
-            collection.add(item)
+            collection.add(itemWithGroup)
         } else {
-            collection.document(id).set(item)
+            collection.document(id).set(itemWithGroup)
         }
 
         task.addOnCompleteListener { result ->
@@ -51,9 +43,9 @@ class GroceryRepository {
         }
     }
 
-    // Delete data
+    // --- DELETE FROM FIREBASE ---
     fun deleteItem(id: String, onComplete: (Boolean) -> Unit) {
-        getMyCollection().document(id).delete().addOnCompleteListener {
+        getGroupCollection().document(id).delete().addOnCompleteListener {
             onComplete(it.isSuccessful)
         }
     }

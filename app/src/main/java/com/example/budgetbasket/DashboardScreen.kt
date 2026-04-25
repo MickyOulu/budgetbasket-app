@@ -37,7 +37,8 @@ fun DashboardScreen(
     val groceryButtonColor = Color(0xFF4CAF50)
     val logoutButtonColor = Color(0xFFFF7043)
 
-    val repository = remember { GroceryRepository() }
+    val testGroupId = "Oulu-Apartment-402"
+    val repository = remember { GroceryRepository(testGroupId) }
     var groceryItemCount by remember { mutableStateOf(0) }
     var totalExpenses by remember { mutableStateOf(0.0) }
 
