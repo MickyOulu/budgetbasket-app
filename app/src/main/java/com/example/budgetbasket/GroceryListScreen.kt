@@ -515,11 +515,7 @@ fun GroceryListScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             expensesByCategory.entries.forEachIndexed { index, entry ->
-                                val percentage = if (totalExpenses > 0) {
-                                    (entry.value / totalExpenses) * 100
-                                } else {
-                                    0.0
-                                }
+                                val percentage = (entry.value / totalExpenses) * 100
 
                                 val isSelected = selectedCategoryForDetails == entry.key
 
