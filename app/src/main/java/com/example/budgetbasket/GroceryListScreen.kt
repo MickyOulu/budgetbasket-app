@@ -58,6 +58,7 @@ fun GroceryListScreen(
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
     val repository = remember(groupID) { GroceryRepository(groupID) }
     val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -401,6 +402,7 @@ fun GroceryListScreen(
                                     weekText = ""
                                     categoryText = "Produce (Fruits & Veggies)"
                                     message = "Item saved successfully"
+                                    focusManager.clearFocus()
                                 } else {
                                     message = "Error: $errorMsg"
                                 }
