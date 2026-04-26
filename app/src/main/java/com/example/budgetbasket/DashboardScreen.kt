@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import java.util.Locale
@@ -129,9 +130,11 @@ fun DashboardScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Items",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF2E3A59)
+                            text = "ITEMS",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            color = Color(0xFF2E3A59).copy(alpha = 0.7f)
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
