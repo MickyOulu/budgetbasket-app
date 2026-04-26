@@ -274,13 +274,23 @@ fun GroceryListScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                OutlinedTextField(
-                    value = currentUserName,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Added by") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Adding as: $currentUserName",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                    if (weekText.isNotEmpty()) {
+                        Text(
+                            text = "Target: $weekText",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -301,16 +311,6 @@ fun GroceryListScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = weekText,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Week") },
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
