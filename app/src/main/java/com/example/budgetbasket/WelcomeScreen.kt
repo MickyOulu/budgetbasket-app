@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,40 +22,45 @@ fun WelcomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(24.dp),
+            .background(Color(0xFFF5F7FB))
+            .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "🏠", style = MaterialTheme.typography.displayMedium)
+            Text(text = " + ", style = MaterialTheme.typography.displaySmall, color = Color.Gray)
+            Text(text = "🛒", style = MaterialTheme.typography.displayMedium)
+        }
 
-            text = "\uD83D\uDED2",
-
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color.Black
-
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = "BudgetBasket",
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.Black
+            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color(0xFF2E3A59)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Plan grocery shopping and track shared expenses easily :)",
+            text = "Smart spending for shared living.\nTrack, split, and relax with your roommates.",
             textAlign = TextAlign.Center,
-            color = Color.Black
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.DarkGray,
+            lineHeight = 24.sp
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        Button(onClick = onGetStartedClick) {
-            Text("Get Started")
+        Button(
+            onClick = onGetStartedClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF6C63FF)
+            )
+        ) {
+            Text("Get Started", modifier = Modifier.padding(vertical = 8.dp))
         }
     }
 }
