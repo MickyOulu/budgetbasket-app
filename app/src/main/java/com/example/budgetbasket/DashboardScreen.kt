@@ -129,13 +129,20 @@ fun DashboardScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "ITEMS",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp,
-                            color = Color(0xFF2E3A59).copy(alpha = 0.7f)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(4.dp, 18.dp)
+                                    .background(Color(0xFF6C63FF), RoundedCornerShape(2.dp))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Items",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = summaryTitleColor,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -165,11 +172,20 @@ fun DashboardScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Expenses",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF2E3A59)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(4.dp, 18.dp)
+                                    .background(Color(0xFF6C63FF), RoundedCornerShape(2.dp))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Expenses",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = summaryTitleColor,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
