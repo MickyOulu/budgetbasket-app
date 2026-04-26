@@ -120,12 +120,15 @@ fun LoginScreen(
             Text("Login")
         }
 
-        if (message.isNotEmpty()) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(top = 12.dp),
-                color = Color.Red
-            )
+        Box(modifier = Modifier.height(32.dp).padding(top = 8.dp)) {
+            if (message.isNotEmpty()) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
 
