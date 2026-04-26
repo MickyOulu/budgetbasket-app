@@ -36,7 +36,7 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "BudgetBasket",
+            text = "OurBudgetBasket",
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
             color = Color(0xFF2E3A59)
         )
