@@ -1,52 +1,53 @@
-# BudgetBasket
+# BudgetBasket 🏠 + 🛒
 
-BudgetBasket is an Android application designed to help users manage shared grocery shopping and track expenses efficiently. Whether you're living with roommates or managing a household, BudgetBasket simplifies the process of creating shopping lists and keeping an eye on your monthly budget.
+BudgetBasket is a smart expense-tracking Android application designed for shared living. Whether you're managing a household or living with roommates, BudgetBasket helps you track, split, and visualize your grocery spending with ease.
 
-## 🚀 Features
+<p align="center">
+  <img src="app/src/main/res/drawable/budget_basket_app.png" width="200" alt="BudgetBasket Logo">
+</p>
 
-- **User Authentication:** Secure login and sign-up using Firebase.
-- **Personalized Dashboard:** A central hub to access all app features.
-- **Grocery List Management:** Create and manage your shopping lists in real-time.
-- **Shared Access (Planned):** Collaborate with others on shared lists.
-- **Expense Tracking (Planned):** Keep track of how much you spend on groceries.
-- **Monthly Budget (Planned):** Set and monitor your monthly spending goals.
+## ✨ Key Features
+
+- **Join or Create Apartment Groups**: Easily collaborate by joining a group via a unique Group ID. Keep all your household expenses in one synchronized place.
+- **Collaborative Expense Logging**: Everyone in your group can add, view, and track grocery items in real-time.
+- **Secure Ownership**: Data integrity is maintained by ensuring that only the item's owner can edit or remove their specific entries.
+- **Visual Spending Insights**: Visualize your expenses through automatic pie charts that break down spending by category (Produce, Meat, Dairy, etc.) and by week.
+- **Faster Settle-Ups**: View total costs and spending distributions to make settling up with roommates quick and transparent.
 
 ## 🛠️ Tech Stack
 
-- **Language:** [Kotlin](https://kotlinlang.org/)
-- **UI Framework:** [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- **Backend:** [Firebase Authentication](https://firebase.google.com/docs/auth) (and Firestore)
-- **Architecture:** MVVM (Model-View-ViewModel) - *Assuming standard modern practice*
-- **Design:** [Material 3](https://m3.material.io/)
+- **Language**: [Kotlin](https://kotlinlang.org/)
+- **UI Framework**: [Jetpack Compose](https://developer.android.com/jetpack/compose) with Material 3
+- **Backend & Database**: [Firebase Authentication](https://firebase.google.com/docs/auth) and [Cloud Firestore](https://firebase.google.com/docs/firestore)
+- **Architecture**: MVVM (Model-View-ViewModel)
 
-## 📸 Screenshots
-
-![img_2.png](img_2.png) ![img_1.png](img_1.png)
-
-![img.png](img.png)
-
-## 🏁 Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Android Studio Flamingo or newer.
-- A Firebase project set up in the [Firebase Console](https://console.firebase.google.com/).
+- Android Studio Flamingo (or newer)
+- A Firebase project with Authentication and Firestore enabled.
 
-### Installation
+### Setup
 
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/budgetbasket-app.git
+   git clone https://github.com/MickyOulu/budgetbasket-app.git
    ```
-2. Open the project in Android Studio.
-3. Add your `google-services.json` file to the `app/` directory.
-4. Sync the project with Gradle files.
-5. Run the app on an emulator or a physical device.
+2. **Firebase Configuration**:
+   - Download your `google-services.json` from the Firebase Console.
+   - Place it in the `app/` directory of the project.
+3. **Build and Run**:
+   - Open the project in Android Studio.
+   - Sync Gradle files.
+   - Run the application on an emulator or physical device.
 
-## 🚧 Current Status
+## 📱 Screenshots
 
-The project is currently in the **active development** phase. Core authentication and the basic grocery list structure are implemented. Expense tracking and budget analysis features are coming soon.
+| Welcome Screen |   Dashboard    |   Grocery List    |
+|:--------------:|:--------------:|:-----------------:|
+|  ![Welcome](![img_3.png](img_3.png))  | ![Dashboard](![img_4.png](img_4.png)) | ![Grocery List](![img_5.png](img_5.png)) |
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
