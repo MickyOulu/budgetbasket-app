@@ -2,10 +2,6 @@
 
 OurBudgetBasket is a smart expense-tracking Android application designed for shared living. Whether you're managing a household or living with roommates, BudgetBasket helps you track, split, and visualize your grocery spending with ease.
 
-<p align="center">
-  <img src="app/src/main/res/drawable/budget_basket_app.png" width="200" alt="BudgetBasket Logo">
-</p>
-
 ## ✨ Key Features
 
 - **Join or Create Apartment Groups**: Easily collaborate by joining a group via a unique Group ID. Keep all your household expenses in one synchronized place.
