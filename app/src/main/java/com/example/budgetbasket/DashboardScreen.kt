@@ -91,7 +91,7 @@ fun DashboardScreen(
                     color = bannerTextColor
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Manage your shared groceries and expenses easily",
