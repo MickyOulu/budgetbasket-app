@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +53,9 @@ fun GroceryListScreen(
     groupID: String,
     onBackClick: () -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     val repository = remember(groupID) { GroceryRepository(groupID) }
     val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
@@ -152,6 +157,7 @@ fun GroceryListScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
@@ -649,6 +655,10 @@ fun GroceryListScreen(
                         weekText = item.week
                         categoryText = item.category
                         message = "Editing: ${item.itemName}"
+
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
                     },
                     onRemove = {
                         // only record the item to be deleted
