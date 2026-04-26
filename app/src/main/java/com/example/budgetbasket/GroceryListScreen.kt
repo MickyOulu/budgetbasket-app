@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -193,6 +194,7 @@ fun GroceryListScreen(
 
                 OutlinedTextField(
                     value = itemText,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                     onValueChange = {
                         itemText = it
                         itemNameError = false
