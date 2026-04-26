@@ -40,9 +40,9 @@ OurBudgetBasket is a smart expense-tracking Android application designed for sha
 
 ## 📱 Screenshots
 
-| Welcome Screen | Dashboard | Grocery List |
-| :---: | :---: | :---: |
-| ![Welcome](img_3.png) | ![Dashboard](img_4.png) | ![Grocery List](img_5.png) |
+|     Welcome Screen      | Dashboard | Grocery List |
+|:-----------------------:| :---: | :---: |
+|  ![Welcome](img_6.png)  | ![Dashboard](img_4.png) | ![Grocery List](img_5.png) |
 
 ## 📝 License
 
