@@ -306,9 +306,12 @@ fun GroceryListScreen(
                         value = dateText,
                         onValueChange = {},
                         readOnly = true,
-                        enabled = false,
-                        label = { Text("Select Date") },
-                        modifier = Modifier.fillMaxWidth()
+                        enabled = true,
+                        label = { Text("Date") },
+                        placeholder = { Text("DD/MM/YYYY") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showDatePicker = true }
                     )
                 }
 
