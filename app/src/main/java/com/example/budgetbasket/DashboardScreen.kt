@@ -234,6 +234,7 @@ fun DashboardScreen(
 
         Button(
             onClick = onLogoutClick,
+            modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = logoutButtonColor,
                 contentColor = Color.White
