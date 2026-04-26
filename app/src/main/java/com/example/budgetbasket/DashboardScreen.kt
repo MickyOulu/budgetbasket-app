@@ -29,10 +29,10 @@ fun DashboardScreen(
     onOpenGroceryClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    val backgroundColor = Color(0xFFF5F7FB)
-    val bannerColor = Color(0xFF6C63FF)
-    val bannerTextColor = Color.White
-    val subtitleColor = Color(0xFFE8E7FF)
+    val backgroundColor = MaterialTheme.colorScheme.surface
+    val bannerColor = MaterialTheme.colorScheme.primaryContainer
+    val bannerTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+    val subtitleColor = bannerTextColor.copy(alpha = 0.8f)
     val summaryTitleColor = Color(0xFF2E3A59)
     val summaryCardColor = Color(0xFFE3F2FD)
 
