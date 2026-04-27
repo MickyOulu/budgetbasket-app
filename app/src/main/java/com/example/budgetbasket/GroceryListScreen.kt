@@ -237,7 +237,10 @@ fun GroceryListScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = categoryText,
                         onValueChange = {},
@@ -307,7 +310,7 @@ fun GroceryListScreen(
                         value = dateText,
                         onValueChange = {},
                         readOnly = true,
-                        enabled = true,
+                        enabled = false,
                         label = { Text("Date") },
                         placeholder = { Text("DD/MM/YYYY") },
                         modifier = Modifier
@@ -428,52 +431,6 @@ fun GroceryListScreen(
                         ) {
                             Text("Cancel")
                         }
-                    }
-                }
-            }
-
-            if (showDatePicker) {
-                item {
-                    val datePickerState = rememberDatePickerState(
-                        initialSelectedDateMillis = System.currentTimeMillis(),
-                        selectableDates = object : androidx.compose.material3.SelectableDates {
-                            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                                return utcTimeMillis <= System.currentTimeMillis()
-                            }
-                        }
-                    )
-
-                    DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    val selectedMillis = datePickerState.selectedDateMillis
-                                    if (selectedMillis != null) {
-                                        val selectedDate = Date(selectedMillis)
-                                        val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                        dateText = formatter.format(selectedDate)
-
-                                        val calendar = Calendar.getInstance()
-                                        calendar.time = selectedDate
-                                        val weekNumber = calendar.get(Calendar.WEEK_OF_MONTH)
-                                        weekText = "Week $weekNumber"
-                                    }
-                                    showDatePicker = false
-                                }
-                            ) {
-                                Text("OK")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { showDatePicker = false }
-                            ) {
-                                Text("Cancel")
-                            }
-                        }
-                    ) {
-                        DatePicker(state = datePickerState)
                     }
                 }
             }
@@ -677,6 +634,48 @@ fun GroceryListScreen(
                     }
                 )
             }
+        }
+
+        if (showDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = System.currentTimeMillis(),
+                    selectableDates = object : androidx.compose.material3.SelectableDates {
+                        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                            return utcTimeMillis <= System.currentTimeMillis()
+                        }
+                    }
+                )
+
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val selectedMillis = datePickerState.selectedDateMillis
+                                if (selectedMillis != null) {
+                                    val selectedDate = Date(selectedMillis)
+                                    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                    dateText = formatter.format(selectedDate)
+
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = selectedDate
+                                    val weekNumber = calendar.get(Calendar.WEEK_OF_MONTH)
+                                    weekText = "Week $weekNumber"
+                                }
+                                showDatePicker = false
+                            }
+                        ) { Text("OK") }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDatePicker = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
         }
 
         if (showDeleteDialog) {
